@@ -22,13 +22,17 @@
     <div class="card bg-accent rounded margin3">
         <div class="card-body bg-additional rounded">
             <div class="d-flex flex-row justify-content-start">
-                <h5 class="card-title ">#@application.Id @application.NameEquipment</h5>
-                <div class="d-flex flex-row justify-content-start-2 margin2">
+                <div class="d-flex flex-row">
+                    <h4 class="card-title ">@application.Number</h4>
+                    <h5 class="card-title margin2 margin3">@application.Description</h5>
+                </div>
+
+                <div class="d-flex flex-row justify-content-start-2 margin2 margin3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle margin3" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
                     </svg>
-                    <p class="margin1">@application.User.FullName</p>
+                    <p class="margin1">@application.ClientName</p>
                 </div>
 
             </div>
@@ -39,20 +43,22 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools margin3" viewBox="0 0 16 16">
                             <path d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3q0-.405-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814zm9.646 10.646a.5.5 0 0 1 .708 0l2.914 2.915a.5.5 0 0 1-.707.707l-2.915-2.914a.5.5 0 0 1 0-.708M3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026z" />
                         </svg>
-                        <p class="margin1">@application.Equipment.Name</p>
+                        <p class="margin1">@application.NameEquipment @application.Equipment.Name</p>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench margin3 margin1" viewBox="0 0 16 16">
-                            <path d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill  margin3 margin2" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2" />
                         </svg>
                         <p class="margin1">@application.Problem.Name</p>
+                        <p class="margin2">Стоимость: @application.Cost₽</p>
                     </div>
                     <div class="d-flex flex-row justify-content-start">
                         <p>Статус: <span class="badge badge-primary bg-accent">@application.status.Name</span></p>
+                        <p class="card-footer bg-accent rounded-pill margin2">Дата создания: @application.DateAddition</p>
                     </div>
 
-                    <p class="card-footer bg-accent rounded-pill">Дата создания: @application.DateAddition</p>
+                   
                 </div>
-
+                <p>@application.Comment</p>
                 <div class="d-flex flex-column justify-content-around" style="height: 100px;">
                     <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="Edit" asp-route-id="@application.Id">Изменить</a>
                     <a class="btn btn-danger bg-accent p-2" asp-action="Delete" asp-route-id="@application.Id">Удалить</a>

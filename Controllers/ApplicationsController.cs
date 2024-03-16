@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Demo.Data;
 using Demo.Data.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections;
 
 namespace Demo.Controllers
 {
@@ -56,7 +57,7 @@ namespace Demo.Controllers
             ViewData["EquipmentTypeId"] = new SelectList(_context.EquipmentTypes, "Id", "Name");
             ViewData["ProblemTypeId"] = new SelectList(_context.ProblemTypes, "Id", "Name");
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "FullName");
+            ViewData["UserId"] = new SelectList(_context.Users.Where(x => x.roleId == 2), "Id", "FullName");
             return View();
         }
 
@@ -73,6 +74,7 @@ namespace Demo.Controllers
             DateTime dateTime = DateTime.Now;
             DateOnly dateOnly = new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
             application.DateAddition = dateOnly;
+            application.WorkStatus = "Не выполнено";
             if (ModelState.IsValid)
             {
                 
@@ -83,7 +85,7 @@ namespace Demo.Controllers
             
             ViewData["EquipmentTypeId"] = new SelectList(_context.EquipmentTypes, "Id", "Name", application.EquipmentTypeId);
             ViewData["ProblemTypeId"] = new SelectList(_context.ProblemTypes, "Id", "Name", application.ProblemTypeId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "FullName", application.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users.Where(x => x.roleId == 2), "Id", "FullName", application.UserId);
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", application.StatusId);
             return View(application);
         }
@@ -102,10 +104,21 @@ namespace Demo.Controllers
             {
                 return NotFound();
             }
+
             ViewData["EquipmentTypeId"] = new SelectList(_context.EquipmentTypes, "Id", "Name", application.EquipmentTypeId);
             ViewData["ProblemTypeId"] = new SelectList(_context.ProblemTypes, "Id", "Name", application.ProblemTypeId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "FullName", application.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users.Where(x => x.roleId == 2), "Id", "FullName", application.UserId);
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", application.StatusId);
+
+            List<string> workStatuses = new List<string>
+            {
+                "Не выполнено",
+                "В работе",
+                "Выполнено"
+            };
+            List<SelectListItem> selectList = workStatuses.Select(x => new SelectListItem { Text = x, Value = x }).ToList();
+            ViewBag.WorkStatuses = selectList;
+
             return View(application);
         }
 
@@ -114,8 +127,10 @@ namespace Demo.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DateAddition,NameEquipment,EquipmentTypeId,ProblemTypeId,Comment,StatusId,ClientName,Cost,DateEnd,TimeWork,UserId,WorkStatus,PeriodExecution,Number,Description")] Application application)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,DateAdditional,NameEquipment,EquipmentTypeId,ProblemTypeId,Comment,StatusId,ClientName,Cost,DateEnd,TimeWork,UserId,WorkStatus,PeriodExecution,Number,Description")] Application application)
         {
+            var user = User;
+            bool roleDis = user.IsInRole("1");
             if (id != application.Id)
             {
                 return NotFound();
@@ -125,8 +140,39 @@ namespace Demo.Controllers
             {
                 try
                 {
-                    _context.Update(application);
-                    await _context.SaveChangesAsync();
+                    var existingApplication = await _context.Applications.AsNoTracking().FirstOrDefaultAsync(a => a.Id == application.Id);
+                    if (existingApplication != null)
+                    {
+                        application.DateAddition = existingApplication.DateAddition;
+                        application.NameEquipment = existingApplication.NameEquipment;
+                        application.EquipmentTypeId = existingApplication.EquipmentTypeId;
+                        application.ProblemTypeId = existingApplication.ProblemTypeId;
+                        application.ClientName = existingApplication.ClientName;
+                        application.Cost = existingApplication.Cost;
+                        application.Number = existingApplication.Number;
+                        if (roleDis)
+                        {
+                            application.WorkStatus = existingApplication.WorkStatus;
+                            application.TimeWork = existingApplication.TimeWork;
+
+                        }
+                        else
+                        {
+                            application.StatusId = existingApplication.StatusId;
+                            if(existingApplication.WorkStatus != application.WorkStatus)
+                            {
+                                Notification notification = new Notification();
+                                notification.ApplicationId = application.Id;
+                                notification.Comment = $"Статус заявки [{application.Id}] изменен с [{existingApplication.WorkStatus}] на [{application.WorkStatus}]";
+                                notification.UserId = Convert.ToInt64(User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value);
+                                notification.CreatedAt = DateTime.UtcNow;
+                                _context.Notifications.Add(notification);
+                            }
+
+                        }
+                        _context.Update(application);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -143,8 +189,16 @@ namespace Demo.Controllers
             }
             ViewData["EquipmentTypeId"] = new SelectList(_context.EquipmentTypes, "Id", "Name", application.EquipmentTypeId);
             ViewData["ProblemTypeId"] = new SelectList(_context.ProblemTypes, "Id", "Name", application.ProblemTypeId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "FullName", application.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users.Where(x => x.roleId == 2), "Id", "FullName", application.UserId);
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", application.StatusId);
+            List<string> workStatuses = new List<string>
+            {
+                "Не выполнено",
+                "В работе",
+                "Выполнено"
+            };
+            List<SelectListItem> selectList = workStatuses.Select(x => new SelectListItem { Text = x, Value = x }).ToList();
+            ViewBag.WorkStatuses = selectList;
             return View(application);
         }
 

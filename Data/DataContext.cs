@@ -18,6 +18,7 @@ namespace Demo.Data
         public DbSet<ProblemType> ProblemTypes { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Status> Statuses { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +27,8 @@ namespace Demo.Data
             modelBuilder.Entity<EquipmentType>().ToTable("equipment");
             modelBuilder.Entity<ProblemType>().ToTable("problem");
             modelBuilder.Entity<Role>().ToTable("role");
-            modelBuilder.Entity<Status>().ToTable("workstatus");
+            modelBuilder.Entity<Status>().ToTable("status");
+            modelBuilder.Entity<Notification>().ToTable("notifications");
             base.OnModelCreating(modelBuilder);
         }
     }

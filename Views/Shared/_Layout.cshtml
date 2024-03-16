@@ -1,6 +1,8 @@
-﻿@{
+﻿@using Demo.Helpers;
+@{
     var user = Context.User;
     bool showButtons = user.IsInRole("1");
+    var fullName = user.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
 }
 
 <!DOCTYPE html>
@@ -50,10 +52,10 @@
                     <ul class="navbar-nav bg-accent rounded margin5">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="bi bi-person-fill"></i> Роман
+                                <i class="bi bi-person-fill"></i> @fullName
                             </a>
                             <div class="dropdown-menu" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">Сообщения</a>
+                                <a class="dropdown-item" href="#">Уведомления</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выход</a>
                             </div>
