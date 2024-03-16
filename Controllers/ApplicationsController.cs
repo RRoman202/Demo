@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Demo.Data;
 using Demo.Data.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Demo.Controllers
 {
@@ -20,6 +21,7 @@ namespace Demo.Controllers
         }
 
         // GET: Applications
+        [Authorize(Roles = "1, 2")]
         public async Task<IActionResult> Index()
         {
             var dataContext = _context.Applications.Include(a => a.Equipment).Include(a => a.Problem).Include(a => a.User).Include(a => a.status);
@@ -48,6 +50,7 @@ namespace Demo.Controllers
         }
 
         // GET: Applications/Create
+        [Authorize(Roles = "1")]
         public IActionResult Create()
         {
             ViewData["EquipmentTypeId"] = new SelectList(_context.EquipmentTypes, "Id", "Name");
@@ -60,6 +63,7 @@ namespace Demo.Controllers
         // POST: Applications/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "1")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Application application)
@@ -85,6 +89,7 @@ namespace Demo.Controllers
         }
 
         // GET: Applications/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

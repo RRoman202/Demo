@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var user = Context.User;
+    bool showButtons = user.IsInRole("1");
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,7 +15,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 bg-accent">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 bg-additional">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex flex-row justify-content-start margin4" asp-area="" asp-controller="Applications" asp-action="Index">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-wrench-adjustable-circle-fill " viewBox="0 0 16 16">
@@ -28,19 +33,21 @@
                     <ul class="navbar-nav flex-grow-1">
                         <div class="d-flex flex-row justify-content-start margin4">
                             <p>
-                                <a asp-area="" asp-controller="Applications" asp-action="Index"><button type="button" class="btn btn-outline-primary bg-additional">Все заявки</button></a>
+                                <a asp-area="" asp-controller="Applications" asp-action="Index"><button type="button" class="btn bg-accent">Все заявки</button></a>
                             </p>
-                            <p>
-                                <a asp-action="Create"><button type="button" class="btn btn-outline-primary bg-additional margin1">Добавить заявку</button></a>
-                            </p>
-                            <p>
-                                <a asp-action="Create"><button type="button" class="btn btn-outline-primary bg-additional margin1">Статистика</button></a>
-                            </p>
-                            
+                            @if (showButtons)
+                            {
+                                <p>
+                                    <a asp-action="Create"><button type="button" class="btn bg-accent margin1">Добавить заявку</button></a>
+                                </p>
+                                <p>
+                                    <a asp-action="Create"><button type="button" class="btn bg-accent margin1">Статистика</button></a>
+                                </p>
+                            }
                         </div>
                         
                     </ul>
-                    <ul class="navbar-nav bg-additional rounded margin5">
+                    <ul class="navbar-nav bg-accent rounded margin5">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="bi bi-person-fill"></i> Роман
@@ -48,7 +55,7 @@
                             <div class="dropdown-menu" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#">Сообщения</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">Выход</a>
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выход</a>
                             </div>
                         </li>
                     </ul>
