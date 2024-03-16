@@ -16,7 +16,7 @@ namespace Demo.Data.Models
         public long StatusId { get; set; }
         public string? ClientName { get; set; }
         public int Cost { get; set; }
-        public DateOnly DateEnd { get; set; }
+        public DateOnly? DateEnd { get; set; }
         public TimeOnly TimeWork { get; set; }
         public long UserId { get; set; }
         public DateOnly PeriodExecution { get; set; }

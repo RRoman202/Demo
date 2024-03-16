@@ -13,17 +13,56 @@
     bool showButtons = user.IsInRole("1");
 }
 
+@{
+    var statuses = Model.Select(a => a.WorkStatus).Distinct().ToList();
+}
+
+
+
+
 <form class="form-inline d-flex flex-row justify-content-start">
-    <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Поиск">
-    <button class="btn btn-primary my-2 my-sm-0 bg-accent margin1" type="submit">Найти</button>
+    
+    <input class="form-control mr-2" type="search" placeholder="Поиск по номеру или описанию" aria-label="Поиск" oninput="applyFilter()">
+    <div class="form-group mr-2 margin1">
+        
+        <select class="form-control" id="statusFilter" onchange="applyFilter()">
+            <option value="">Все</option>
+            @foreach (var status in statuses)
+            {
+                <option value="@status">@status</option>
+            }
+        </select>
+    </div>
 </form>
+
+<script>
+    function applyFilter() {
+        var selectedStatus = document.getElementById("statusFilter").value.toLowerCase();
+        var searchInput = document.querySelector('input[type="search"]').value.toLowerCase();
+        var cards = document.querySelectorAll(".card");
+
+        cards.forEach(card => {
+            var status = card.querySelector(".workstat").innerText.toLowerCase();
+            var number = card.querySelector(".card-title").innerText.toLowerCase();
+            var description = card.querySelector(".card-title + .card-title").innerText.toLowerCase();
+
+            if ((selectedStatus === "" || status === selectedStatus) && (number.includes(searchInput) || description.includes(searchInput))) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+</script>
+
 @foreach (var application in sortedApplications)
 {
     <div class="card bg-accent rounded margin3">
         <div class="card-body bg-additional rounded">
             <div class="d-flex flex-row justify-content-start">
                 <div class="d-flex flex-row">
-                    <h4 class="card-title ">@application.Number</h4>
+                    <p class="card-footer bg-accent rounded-pill">#@application.Id</p>
+                    <h4 class="card-title margin2">@application.Number</h4>
                     <h5 class="card-title margin2 margin3">@application.Description</h5>
                 </div>
 
@@ -53,6 +92,7 @@
                     </div>
                     <div class="d-flex flex-row justify-content-start">
                         <p>Статус: <span class="badge badge-primary bg-accent">@application.status.Name</span></p>
+                        <p class="margin2">Рабочий статус: <span class="badge badge-primary bg-accent workstat">@application.WorkStatus</span></p>
                         <p class="card-footer bg-accent rounded-pill margin2">Дата создания: @application.DateAddition</p>
                     </div>
 
@@ -60,8 +100,18 @@
                 </div>
                 <p>@application.Comment</p>
                 <div class="d-flex flex-column justify-content-around" style="height: 100px;">
-                    <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="Edit" asp-route-id="@application.Id">Изменить</a>
-                    <a class="btn btn-danger bg-accent p-2" asp-action="Delete" asp-route-id="@application.Id">Удалить</a>
+                    @{
+                        if (user.IsInRole("3"))
+                        {
+                            <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="EditForManager" asp-route-id="@application.Id">Изменить</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="Edit" asp-route-id="@application.Id">Изменить</a>
+                        }
+                        
+                    }
+                    
                 </div>
             </div>
 

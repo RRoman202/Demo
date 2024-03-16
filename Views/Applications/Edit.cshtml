@@ -36,11 +36,15 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label">Комментарий</label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
+            @if (!show)
+            {
+                <div class="form-group">
+                    <label asp-for="Comment" class="control-label">Комментарий</label>
+                    <input asp-for="Comment" class="form-control" />
+                    <span asp-validation-for="Comment" class="text-danger"></span>
+                </div>
+            }
+            
             @{
                 if (show)
                 {
@@ -73,11 +77,14 @@
                 <input asp-for="Cost" class="form-control" />
                 <span asp-validation-for="Cost" class="text-danger"></span>
             </div> *@
-
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label">Исполнитель</label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
+            @if (show)
+            {
+                <div class="form-group">
+                    <label asp-for="UserId" class="control-label">Исполнитель</label>
+                    <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                </div>
+            }
+            
 
 
             

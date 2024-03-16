@@ -22,7 +22,7 @@ namespace Demo.Controllers
         }
 
         // GET: Applications
-        [Authorize(Roles = "1, 2")]
+        [Authorize(Roles = "1, 2, 3")]
         public async Task<IActionResult> Index()
         {
             var dataContext = _context.Applications.Include(a => a.Equipment).Include(a => a.Problem).Include(a => a.User).Include(a => a.status);
@@ -75,6 +75,8 @@ namespace Demo.Controllers
             DateOnly dateOnly = new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
             application.DateAddition = dateOnly;
             application.WorkStatus = "Не выполнено";
+            application.PeriodExecution = dateOnly.AddDays(5);
+            application.DateEnd = null;
             if (ModelState.IsValid)
             {
                 
@@ -91,7 +93,7 @@ namespace Demo.Controllers
         }
 
         // GET: Applications/Edit/5
-
+        [Authorize(Roles = "1, 2")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -127,6 +129,7 @@ namespace Demo.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1, 2")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,DateAdditional,NameEquipment,EquipmentTypeId,ProblemTypeId,Comment,StatusId,ClientName,Cost,DateEnd,TimeWork,UserId,WorkStatus,PeriodExecution,Number,Description")] Application application)
         {
             var user = User;
@@ -143,6 +146,7 @@ namespace Demo.Controllers
                     var existingApplication = await _context.Applications.AsNoTracking().FirstOrDefaultAsync(a => a.Id == application.Id);
                     if (existingApplication != null)
                     {
+                        application.PeriodExecution = existingApplication.PeriodExecution;
                         application.DateAddition = existingApplication.DateAddition;
                         application.NameEquipment = existingApplication.NameEquipment;
                         application.EquipmentTypeId = existingApplication.EquipmentTypeId;
@@ -154,10 +158,12 @@ namespace Demo.Controllers
                         {
                             application.WorkStatus = existingApplication.WorkStatus;
                             application.TimeWork = existingApplication.TimeWork;
+                            application.Comment = existingApplication.Comment;
 
                         }
                         else
                         {
+                            application.UserId = existingApplication.UserId;
                             application.StatusId = existingApplication.StatusId;
                             if(existingApplication.WorkStatus != application.WorkStatus)
                             {
@@ -167,6 +173,12 @@ namespace Demo.Controllers
                                 notification.UserId = Convert.ToInt64(User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value);
                                 notification.CreatedAt = DateTime.UtcNow;
                                 _context.Notifications.Add(notification);
+                            }
+                            if(application.WorkStatus == "Выполнено")
+                            {
+                                DateTime dateTime = DateTime.Now;
+                                DateOnly dateOnly = new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
+                                application.DateEnd = dateOnly;
                             }
 
                         }
@@ -199,6 +211,60 @@ namespace Demo.Controllers
             };
             List<SelectListItem> selectList = workStatuses.Select(x => new SelectListItem { Text = x, Value = x }).ToList();
             ViewBag.WorkStatuses = selectList;
+            return View(application);
+        }
+
+        [Authorize(Roles = "3")]
+        public async Task<IActionResult> EditForManager(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["UserId"] = new SelectList(_context.Users.Where(x => x.roleId == 2), "Id", "FullName", application.UserId);
+
+            return View(application);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "3")]
+        public async Task<IActionResult> EditForManager(int id, [Bind("Id,UserId,PeriodExecution")] Application application)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingApplication = await _context.Applications.AsNoTracking().FirstOrDefaultAsync(a => a.Id == application.Id);
+                    if (existingApplication != null)
+                    {
+                        existingApplication.UserId = application.UserId;
+                        existingApplication.PeriodExecution = application.PeriodExecution;
+
+                        _context.Update(existingApplication);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ApplicationExists(application.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
             return View(application);
         }
 
@@ -242,5 +308,45 @@ namespace Demo.Controllers
         {
             return _context.Applications.Any(e => e.Id == id);
         }
+
+        [Authorize(Roles = "1")]
+        public async Task<IActionResult> Statistic()
+        {
+            var applications = await _context.Applications.Include(a => a.Problem).ToListAsync();
+
+            var applicationsCompleted = await _context.Applications.Where(a => a.StatusId == 3).Include(a => a.Problem).ToListAsync();
+
+            var completedApplications = applications.Count(a => a.StatusId == 3);
+
+            double averageExecutionTime = 0; 
+            if (applicationsCompleted.Any())
+            {
+                averageExecutionTime = applicationsCompleted.Select(a => DateTime.Now.Date.Add(a.TimeWork.ToTimeSpan()))
+                    .Select(ts => TimeSpan.FromHours(ts.Hour) + TimeSpan.FromMinutes(ts.Minute))
+                    .DefaultIfEmpty(TimeSpan.Zero) 
+                    .Average(ts => ts.TotalHours); 
+            }
+
+            var problemStatistics = applications.GroupBy(a => a.Problem?.Name)
+                                                .Select(g => new
+                                                {
+                                                    Type = g.Key,
+                                                    TotalCount = g.Count(),
+                                                    CompletedCount = g.Count(a => a.StatusId == 3),
+                                                    WaitingCount = g.Count(a => a.StatusId == 1),
+                                                    InProgressCount = g.Count(a => a.WorkStatus == "В работе"),
+                                                    AverageExecutionTime = g.Where(a => a.StatusId == 3)
+                                                    .Select(a => DateTime.Now.Date.Add(a.TimeWork.ToTimeSpan()))
+                                                    .Select(ts => TimeSpan.FromHours(ts.Hour) + TimeSpan.FromMinutes(ts.Minute))
+                                                    .DefaultIfEmpty(TimeSpan.Zero)
+                                                    .Average(ts => ts.TotalHours)
+                                                });
+
+            ViewData["CompletedApplications"] = completedApplications;
+            ViewData["AverageExecutionTime"] = averageExecutionTime;
+            return View(problemStatistics);
+        }
+
+
     }
 }

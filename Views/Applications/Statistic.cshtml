@@ -1,0 +1,35 @@
+﻿@model IEnumerable<dynamic>
+@{
+    var averageExecutionTime = ViewData["AverageExecutionTime"] as double?; 
+    var hours = (int)averageExecutionTime;
+    var minutes = (int)((averageExecutionTime - hours) * 60);
+}
+<div class="container">
+    <h2>Общее количество выполненных заявок: @ViewData["CompletedApplications"]</h2>
+    <h2>Среднее время выполнения заявок: @hours ч. @minutes мин.</h2>
+    <h2>Статистика по типам неисправностей</h2>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Тип</th>
+            <th>Количество</th>
+            <th>Выполненные</th>
+            <th>В ожидании</th>
+            <th>В работе</th>
+            <th>Среднее время выполнения</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Type</td>
+                <td>@item.TotalCount</td>
+                <td>@item.CompletedCount</td>
+                <td>@item.WaitingCount</td>
+                <td>@item.InProgressCount</td>
+                <td>@((int)item.AverageExecutionTime) ч. @((int)((item.AverageExecutionTime - (int)item.AverageExecutionTime) * 60)) мин.</td>
+            </tr>
+        }
+    </table>
+
+    
+</div>

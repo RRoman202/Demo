@@ -25,6 +25,7 @@ namespace Demo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> Delete(int id)
         {
             var noti = await _context.Notifications.FindAsync(id);
@@ -33,6 +34,18 @@ namespace Demo.Controllers
                 _context.Notifications.Remove(noti);
                 await _context.SaveChangesAsync();
             }
+
+            return RedirectToAction("Index", "Notifications");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            var notifications = await _context.Notifications.ToListAsync();
+            _context.Notifications.RemoveRange(notifications);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Notifications");
         }

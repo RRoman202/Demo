@@ -4,12 +4,13 @@
     ViewData["Title"] = "Уведомления";
 }
 
+<h2>Уведомления (Всего: @Model.Count())</h2>
 
-
-<form class="form-inline d-flex flex-row justify-content-start">
-    <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Поиск">
-    <button class="btn btn-primary my-2 my-sm-0 bg-accent margin1" type="submit">Найти</button>
+<form asp-action="DeleteAll" method="post">
+    <button type="submit" class="btn btn-danger bg-accent p-2">Удалить все уведомления</button>
 </form>
+
+
 @foreach (var noti in Model)
 {
     <div class="card bg-accent rounded margin3">
