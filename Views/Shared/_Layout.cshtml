@@ -55,8 +55,11 @@
                                 <i class="bi bi-person-fill"></i> @fullName
                             </a>
                             <div class="dropdown-menu" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">Уведомления</a>
-                                <div class="dropdown-divider"></div>
+                                @if (showButtons)
+                                {
+                                    <a class="dropdown-item" asp-controller="Notifications" asp-action="Index">Уведомления</a>
+                                    <div class="dropdown-divider"></div>
+                                }
                                 <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выход</a>
                             </div>
                         </li>
