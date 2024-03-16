@@ -61,3 +61,8 @@ body::-webkit-scrollbar-thumb {
     margin-right: 100px;
 }
 
+.mini{
+    font-size: 12px;
+    font-weight: bold;
+}
+

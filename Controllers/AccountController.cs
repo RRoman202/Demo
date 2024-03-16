@@ -38,7 +38,7 @@ namespace Demo.Controllers
                 new Claim(ClaimTypes.Name, user.Login),
                 new Claim(ClaimTypes.Role, user.roleId.ToString()),
                 new Claim("FullName", user.FullName),
-                new Claim("Id", user.Id.ToString())
+                new Claim("Id", user.Id.ToString()),
             };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

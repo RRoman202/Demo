@@ -4,6 +4,9 @@
     var hours = (int)averageExecutionTime;
     var minutes = (int)((averageExecutionTime - hours) * 60);
 }
+@{
+    ViewData["Title"] = "Статистика";
+}
 <div class="container">
     <h2>Общее количество выполненных заявок: @ViewData["CompletedApplications"]</h2>
     <h2>Среднее время выполнения заявок: @hours ч. @minutes мин.</h2>

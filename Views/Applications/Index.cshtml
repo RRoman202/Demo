@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<Demo.Data.Models.Application>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Все заявки";
 }
 
 @{
-    var sortedApplications = Model.OrderBy(a => a.Id);
+    var sortedApplications = Model.OrderByDescending(a => a.Id);
 }
 
 @{
@@ -93,7 +93,8 @@
                     <div class="d-flex flex-row justify-content-start">
                         <p>Статус: <span class="badge badge-primary bg-accent">@application.status.Name</span></p>
                         <p class="margin2">Рабочий статус: <span class="badge badge-primary bg-accent workstat">@application.WorkStatus</span></p>
-                        <p class="card-footer bg-accent rounded-pill margin2">Дата создания: @application.DateAddition</p>
+                        <p class="card-footer bg-accent rounded-pill margin2 mini">Дата создания: @application.DateAddition</p>
+                        <p class="card-footer bg-accent rounded-pill margin2 mini">Срок: @application.PeriodExecution</p>
                     </div>
 
                    
