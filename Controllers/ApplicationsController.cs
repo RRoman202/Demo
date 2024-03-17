@@ -22,11 +22,21 @@ namespace Demo.Controllers
         }
 
         // GET: Applications
-        [Authorize(Roles = "1, 2, 3")]
+        [Authorize(Roles = "1, 2, 3, 4")]
         public async Task<IActionResult> Index()
         {
-            var dataContext = _context.Applications.Include(a => a.Equipment).Include(a => a.Problem).Include(a => a.User).Include(a => a.status);
-            return View(await dataContext.ToListAsync());
+            var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+            if (User.IsInRole("4"))
+            {
+                var dataContext = _context.Applications.Where(a => a.ClientName == fullName).Include(a => a.Equipment).Include(a => a.Problem).Include(a => a.User).Include(a => a.status);
+                return View(await dataContext.ToListAsync());
+            }
+            else
+            {
+                var dataContext = _context.Applications.Include(a => a.Equipment).Include(a => a.Problem).Include(a => a.User).Include(a => a.status);
+                return View(await dataContext.ToListAsync());
+            }
+            
         }
 
         // GET: Applications/Details/5

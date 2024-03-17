@@ -106,10 +106,10 @@
                         {
                             <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="EditForManager" asp-route-id="@application.Id">Изменить</a>
                         }
-                        else
-                        {
+                        else if (!user.IsInRole("4")){
                             <a class="btn btn-primary bg-accent mb-auto p-2" asp-action="Edit" asp-route-id="@application.Id">Изменить</a>
                         }
+                        
                         
                     }
                     

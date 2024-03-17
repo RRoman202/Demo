@@ -66,3 +66,8 @@ body::-webkit-scrollbar-thumb {
     font-weight: bold;
 }
 
+.roleDiv {
+    margin-top: 15px;
+    padding: 5px;
+}
+

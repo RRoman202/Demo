@@ -3,6 +3,23 @@
     var user = Context.User;
     bool showButtons = user.IsInRole("1");
     var fullName = user.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+    var roleName = "";
+    if (user.IsInRole("1"))
+    {
+        roleName = "Диспетчер";
+    }
+    else if (user.IsInRole("2"))
+    {
+        roleName = "Исполнитель";
+    }
+    else if (user.IsInRole("3"))
+    {
+        roleName = "Менеджер";
+    }
+    else if (user.IsInRole("4"))
+    {
+        roleName = "Клиент";
+    }
 }
 
 <!DOCTYPE html>
@@ -49,13 +66,14 @@
                         </div>
                         
                     </ul>
+                    <p class="roleDiv border rounded-2 bg-accent">@roleName</p>
                     <ul class="navbar-nav bg-accent rounded margin5 margin2">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="bi bi-person-fill"></i> @fullName
                             </a>
                             <div class="dropdown-menu" aria-labelledby="userDropdown">
-                                @if (showButtons)
+                                @if (showButtons || user.IsInRole("4"))
                                 {
                                     <a class="dropdown-item" asp-controller="Notifications" asp-action="Index">Уведомления</a>
                                     <div class="dropdown-divider"></div>
